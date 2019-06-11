@@ -7,6 +7,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -22,7 +23,7 @@ import org.json.JSONException;
 import java.io.IOException;
 import java.net.URL;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements ForecastAdapter.ForecastAdapterOnClickHandler {
 
     private ForecastAdapter mForecastAdapter;
     private TextView mErrorMessageTextView;
@@ -44,7 +45,7 @@ public class MainActivity extends AppCompatActivity {
                 new LinearLayoutManager(MainActivity.this, RecyclerView.VERTICAL, false);
         mForecastRecyclerView.setLayoutManager(layoutManager);
 
-        mForecastAdapter = new ForecastAdapter();
+        mForecastAdapter = new ForecastAdapter(MainActivity.this);
         mForecastRecyclerView.setAdapter(mForecastAdapter);
 
         loadWeatherData();
@@ -83,6 +84,11 @@ public class MainActivity extends AppCompatActivity {
         String location = SunshinePreferences.getPreferredWeatherLocation(MainActivity.this);
         FetchWeatherTask asyncTask = new FetchWeatherTask();
         asyncTask.execute(location);
+    }
+
+    @Override
+    public void onClick(String weather) {
+        Toast.makeText(this, weather, Toast.LENGTH_LONG).show();
     }
 
     /* Async task class for querying weather data from API*/
