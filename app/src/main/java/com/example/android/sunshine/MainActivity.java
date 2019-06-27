@@ -1,6 +1,7 @@
 package com.example.android.sunshine;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
@@ -16,6 +17,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.loader.app.LoaderManager;
 import androidx.loader.content.AsyncTaskLoader;
 import androidx.loader.content.Loader;
+import androidx.preference.PreferenceManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -29,6 +31,7 @@ import java.io.IOException;
 import java.net.URL;
 
 public class MainActivity extends AppCompatActivity implements ForecastAdapter.ForecastAdapterOnClickHandler,
+        SharedPreferences.OnSharedPreferenceChangeListener,
         LoaderManager.LoaderCallbacks<String[]> {
 
     private static final String TAG = MainActivity.class.getSimpleName();
@@ -38,6 +41,7 @@ public class MainActivity extends AppCompatActivity implements ForecastAdapter.F
     private TextView mErrorMessageTextView;
     private ProgressBar mLoadingProgressBar;
     private RecyclerView mForecastRecyclerView;
+    private static boolean PREFERENCE_UPDATED = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,6 +61,9 @@ public class MainActivity extends AppCompatActivity implements ForecastAdapter.F
         mForecastAdapter = new ForecastAdapter(MainActivity.this);
         mForecastRecyclerView.setAdapter(mForecastAdapter);
 
+        /* Register listener for changes of preferences*/
+        PreferenceManager.getDefaultSharedPreferences(MainActivity.this)
+                .registerOnSharedPreferenceChangeListener(MainActivity.this);
         getSupportLoaderManager().initLoader(FORECAST_ASYNC_LOADER_ID, null, MainActivity.this);
     }
 
@@ -79,13 +86,18 @@ public class MainActivity extends AppCompatActivity implements ForecastAdapter.F
             openLocationMap();
             return true;
         }
+        /* Open settings page*/
+        else if (clickedId == R.id.action_settings){
+            startActivity(new Intent(MainActivity.this, SettingsActivity.class));
+            return true;
+        }
         else
             return super.onOptionsItemSelected(item);
     }
 
     private void showWeatherDataView(){
-        mForecastRecyclerView.setVisibility(View.VISIBLE);
         mErrorMessageTextView.setVisibility(View.INVISIBLE);
+        mForecastRecyclerView.setVisibility(View.VISIBLE);
     }
 
     private void showErrorMessageView(){
@@ -111,7 +123,7 @@ public class MainActivity extends AppCompatActivity implements ForecastAdapter.F
 
     /* Method for opening map app to display location*/
     public void openLocationMap(){
-        String location = "131 Regiment Square, Vancouver, Canada";
+        String location = SunshinePreferences.getPreferredWeatherLocation(MainActivity.this);
         Uri.Builder builder = new Uri.Builder();
         Uri uri = builder.scheme("geo")
                 .path("0,0")
@@ -186,5 +198,28 @@ public class MainActivity extends AppCompatActivity implements ForecastAdapter.F
     @Override
     public void onLoaderReset(@NonNull Loader<String[]> loader) {
 
+    }
+
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String s) {
+        PREFERENCE_UPDATED = true;
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        /* Restart Loader if preferences are updated*/
+        if (PREFERENCE_UPDATED){
+            Log.d(TAG, "onStart: SharedPreferences have been updated.");
+            getSupportLoaderManager().restartLoader(FORECAST_ASYNC_LOADER_ID, null, MainActivity.this);
+            PREFERENCE_UPDATED = false;
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        PreferenceManager.getDefaultSharedPreferences(MainActivity.this)
+                .unregisterOnSharedPreferenceChangeListener(MainActivity.this);
     }
 }

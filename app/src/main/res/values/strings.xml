@@ -134,6 +134,23 @@
 
     <string name="condition_unknown">Unknown (<xliff:g id="conditionId">%1$d</xliff:g>)</string>
 
+    <string name="title_activity_settings">Settings</string>
+
+    <!-- Preference Titles -->
+    <string name="pref_location_label">My Location</string>
+    <string name="pref_units_label">Temperature Units</string>
+
+    <!-- Location Preferences -->
+    <string name="pref_location_key">pref_location</string>
+    <string name="pref_location_default">94043,USA</string>
+
+    <!-- Units Preferences -->
+    <string name="pref_units_key">pref_units</string>
+    <string name="pref_units_imperial">imperial</string>
+    <string name="pref_units_metric">metric</string>
+    <string name="pref_units_imperial_label">Imperial</string>
+    <string name="pref_units_metric_label">Metric</string>
+    <string name="action_settings">Settings</string>
 
     <!-- - - - - - - - - - - -->
     <!-- Used by NetworkUtils-->

@@ -45,6 +45,9 @@ public class DetailActivity extends AppCompatActivity {
         inflater.inflate(R.menu.detail, menu);
         MenuItem item = menu.findItem(R.id.action_share);
         item.setIntent(getShareWeatherIntent());
+
+        menu.findItem(R.id.action_settings)
+                .setIntent(new Intent(DetailActivity.this, SettingsActivity.class));
         return true;
     }
 
