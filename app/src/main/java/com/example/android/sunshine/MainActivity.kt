@@ -17,25 +17,24 @@ import androidx.loader.content.Loader
 import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-
 import com.example.android.sunshine.data.SunshinePreferences
+import com.example.android.sunshine.data.WeatherViewModel
 import com.example.android.sunshine.utilities.NetworkUtils
 import com.example.android.sunshine.utilities.OpenWeatherJsonUtils
-
 import org.json.JSONException
-
 import java.io.IOException
-import java.net.URL
 
 class MainActivity : AppCompatActivity(),
         ForecastAdapter.ForecastAdapterOnClickHandler,
         SharedPreferences.OnSharedPreferenceChangeListener,
         LoaderManager.LoaderCallbacks<Array<String>> {
 
-    private lateinit var mForecastAdapter: ForecastAdapter
     private lateinit var mErrorMessageTextView: TextView
     private lateinit var mLoadingProgressBar: ProgressBar
     private lateinit var mForecastRecyclerView: RecyclerView
+    private val model by lazy {
+        WeatherViewModel()
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -50,14 +49,17 @@ class MainActivity : AppCompatActivity(),
         val layoutManager = LinearLayoutManager(this@MainActivity, RecyclerView.VERTICAL, false)
         mForecastRecyclerView.layoutManager = layoutManager
 
-        mForecastAdapter = ForecastAdapter(this@MainActivity)
-        mForecastRecyclerView.adapter = mForecastAdapter
+        val adapter = ForecastAdapter(this@MainActivity)
+        mForecastRecyclerView.adapter = adapter
 
         /* Register listener for changes of preferences*/
         PreferenceManager.getDefaultSharedPreferences(this@MainActivity)
                 .registerOnSharedPreferenceChangeListener(this@MainActivity)
         LoaderManager.getInstance(this)
                 .initLoader(FORECAST_ASYNC_LOADER_ID, null, this@MainActivity)
+        model.weatherData.observe(this) {
+            adapter.setWeatherData(it.toTypedArray())
+        }
     }
 
     /* For create menu buttons*/
@@ -69,7 +71,7 @@ class MainActivity : AppCompatActivity(),
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.action_refresh -> {
-                mForecastAdapter.setWeatherData(null)
+                model.weatherData.value = null
                 reloadWeatherData()
                 return true
             }
@@ -104,7 +106,7 @@ class MainActivity : AppCompatActivity(),
 
 
     /* Open DetailActivity to display weather details*/
-    override fun onClick(weather: String) {
+    override fun onClick(weather: String?) {
         val intent = Intent(this@MainActivity, DetailActivity::class.java)
         intent.putExtra(Intent.EXTRA_TEXT, weather)
         startActivity(intent)
@@ -141,7 +143,7 @@ class MainActivity : AppCompatActivity(),
                 if (mForecastData != null)
                     deliverResult(mForecastData)
                 else {
-                    mLoadingProgressBar!!.visibility = View.VISIBLE
+                    mLoadingProgressBar.visibility = View.VISIBLE
                     forceLoad()
                 }
             }
@@ -176,7 +178,7 @@ class MainActivity : AppCompatActivity(),
         mLoadingProgressBar.visibility = View.INVISIBLE
         if (data != null) {
             showWeatherDataView()
-            mForecastAdapter.setWeatherData(data)
+            model.weatherData.value = data.toList()
         } else {
             showErrorMessageView()
         }
