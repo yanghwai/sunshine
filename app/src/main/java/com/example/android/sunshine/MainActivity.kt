@@ -80,7 +80,7 @@ class MainActivity : AppCompatActivity(),
 
     /* Method for opening map app to display location*/
     private fun openLocationMap() {
-        val location = SunshinePreferences.getPreferredWeatherLocation(this@MainActivity)
+        val location = SunshinePreferences.getPreferredWeatherLocation(this)
         val builder = Uri.Builder()
         val uri = builder.scheme("geo")
                 .path("0,0")
@@ -106,6 +106,7 @@ class MainActivity : AppCompatActivity(),
         /* Restart Loader if preferences are updated*/
         if (PREFERENCE_UPDATED) {
             Log.d(TAG, "onStart: SharedPreferences have been updated.")
+            presenter.loadWeather()
             PREFERENCE_UPDATED = false
         }
     }
@@ -130,11 +131,12 @@ class MainActivity : AppCompatActivity(),
         }
     }
 
-    override fun showErrorView() {
+    override fun showErrorView(msg: String?) {
         runOnUiThread {
             mLoadingProgressBar.visibility = View.GONE
             mForecastRecyclerView.visibility = View.GONE
             mErrorMessageTextView.visibility = View.VISIBLE
+            mErrorMessageTextView.text = msg
         }
     }
 

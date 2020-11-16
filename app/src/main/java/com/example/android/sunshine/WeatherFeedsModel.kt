@@ -17,14 +17,14 @@ class WeatherFeedsModel : WeatherFeedsContract.WeatherFeedsModel {
         client.newCall(request)
                 .enqueue(object : Callback {
                     override fun onFailure(call: Call, e: IOException) {
-                        callback.onFailure()
+                        callback.onFailure(e.message)
                     }
 
                     override fun onResponse(call: Call, response: Response) {
                         val data = OpenWeatherJsonUtils
                                 .getSimpleWeatherStringsFromJson(SunshineApplication.APP_CONTEXT, response.body?.string())
                         if (data.isEmpty()) {
-                            callback.onFailure()
+                            callback.onFailure("no data. http code: ${response.message}")
                         } else {
                             callback.onSuccess(data.toList())
                         }

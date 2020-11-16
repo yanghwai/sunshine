@@ -11,8 +11,8 @@ class WeatherFeedsPresenter(private val view: WeatherFeedsContract.WeatherFeedsV
         view.updateWeatherData(data)
     }
 
-    override fun onFailure() {
-        view.showErrorView()
+    override fun onFailure(reason: String?) {
+        view.showErrorView(reason)
     }
 
 }

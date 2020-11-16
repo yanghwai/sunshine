@@ -5,7 +5,7 @@ import android.content.Context
 
 class SunshineApplication : Application() {
     companion object {
-        var APP_CONTEXT: Context? = null
+        lateinit var APP_CONTEXT: Context
             private set
     }
 

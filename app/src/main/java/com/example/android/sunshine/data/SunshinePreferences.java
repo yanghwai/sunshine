@@ -18,6 +18,7 @@ package com.example.android.sunshine.data;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
+import android.text.TextUtils;
 
 import com.example.android.sunshine.R;
 
@@ -97,7 +98,10 @@ public class SunshinePreferences {
         String keyForPrefLocation = context.getString(R.string.pref_location_key);
         String prefLocation = sharedPreferences.getString(keyForPrefLocation, "");
         /* return default location if prefLocation is empty */
-        return ("".equals(prefLocation))? prefLocation: getDefaultWeatherLocation();
+        if (TextUtils.isEmpty(prefLocation)) {
+            return getDefaultWeatherLocation();
+        }
+        return prefLocation;
     }
 
     /**
