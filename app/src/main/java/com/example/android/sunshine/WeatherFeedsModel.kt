@@ -2,8 +2,8 @@ package com.example.android.sunshine
 
 import com.example.android.sunshine.data.SunshinePreferences
 import com.example.android.sunshine.entity.WeatherForecastResp
+import com.example.android.sunshine.entity.toSimpleStrings
 import com.example.android.sunshine.utilities.NetworkUtils
-import com.example.android.sunshine.utilities.OpenWeatherJsonUtils
 import com.google.gson.Gson
 import okhttp3.*
 import java.io.IOException
@@ -29,7 +29,7 @@ class WeatherFeedsModel : WeatherFeedsContract.WeatherFeedsModel {
                         if (data == null || data.list.isEmpty()) {
                             callback.onFailure("no data. http code: ${response.message}")
                         } else {
-                            callback.onSuccess(OpenWeatherJsonUtils.getSimpleWeatherStringsFromResp(data))
+                            callback.onSuccess(data.toSimpleStrings())
                         }
                     }
                 })
