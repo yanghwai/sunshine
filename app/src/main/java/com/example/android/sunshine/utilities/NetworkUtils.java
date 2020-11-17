@@ -3,12 +3,8 @@ package com.example.android.sunshine.utilities;
 import android.net.Uri;
 import android.util.Log;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Scanner;
 
 public final class NetworkUtils {
     private static final String TAG = NetworkUtils.class.getSimpleName();
@@ -54,30 +50,5 @@ public final class NetworkUtils {
         }
         Log.v(TAG, "Built url: " + url);
         return url;
-    }
-
-
-    /**
-     * This method returns the entire result from the HTTP response.
-     *
-     * @param url The URL to fetch the HTTP response from.
-     * @return The contents of the HTTP response.
-     * @throws IOException Related to network and stream reading
-     */
-    public static String getResponseFromHttpUrl(URL url) throws IOException {
-        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-        try{
-            InputStream in = connection.getInputStream();
-            Scanner scanner = new Scanner(in);
-            scanner.useDelimiter("\\A");
-            if(scanner.hasNext()){
-                return scanner.next();
-            }else {
-                return null;
-            }
-        }finally {
-            connection.disconnect();
-        }
-
     }
 }

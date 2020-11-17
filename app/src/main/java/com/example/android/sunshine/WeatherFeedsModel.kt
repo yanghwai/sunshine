@@ -1,14 +1,17 @@
 package com.example.android.sunshine
 
 import com.example.android.sunshine.data.SunshinePreferences
+import com.example.android.sunshine.entity.WeatherForecastResp
 import com.example.android.sunshine.utilities.NetworkUtils
 import com.example.android.sunshine.utilities.OpenWeatherJsonUtils
+import com.google.gson.Gson
 import okhttp3.*
 import java.io.IOException
 
 class WeatherFeedsModel : WeatherFeedsContract.WeatherFeedsModel {
 
     private val client: OkHttpClient = OkHttpClient()
+    private val gson = Gson()
 
     override fun loadFromServer(callback: WeatherFeedsContract.WeatherFeedsModel.OnLoadResultCallback) {
         val location = SunshinePreferences.getPreferredWeatherLocation(SunshineApplication.APP_CONTEXT)
@@ -21,12 +24,12 @@ class WeatherFeedsModel : WeatherFeedsContract.WeatherFeedsModel {
                     }
 
                     override fun onResponse(call: Call, response: Response) {
-                        val data = OpenWeatherJsonUtils
-                                .getSimpleWeatherStringsFromJson(SunshineApplication.APP_CONTEXT, response.body?.string())
-                        if (data.isEmpty()) {
+                        val respStr = response.body?.string()
+                        val data = gson.fromJson(respStr, WeatherForecastResp::class.java)
+                        if (data == null || data.list.isEmpty()) {
                             callback.onFailure("no data. http code: ${response.message}")
                         } else {
-                            callback.onSuccess(data.toList())
+                            callback.onSuccess(OpenWeatherJsonUtils.getSimpleWeatherStringsFromResp(data))
                         }
                     }
                 })
