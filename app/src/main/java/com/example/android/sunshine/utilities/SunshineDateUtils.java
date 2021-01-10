@@ -18,9 +18,13 @@ package com.example.android.sunshine.utilities;
 import android.content.Context;
 import android.text.format.DateUtils;
 
+import androidx.annotation.Nullable;
+
 import com.example.android.sunshine.R;
 
+import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.Locale;
 import java.util.TimeZone;
 
 /**
@@ -32,6 +36,15 @@ public final class SunshineDateUtils {
     public static final long MINUTE_IN_MILLIS = SECOND_IN_MILLIS * 60;
     public static final long HOUR_IN_MILLIS = MINUTE_IN_MILLIS * 60;
     public static final long DAY_IN_MILLIS = HOUR_IN_MILLIS * 24;
+
+    private static final ThreadLocal<DateFormat> DATE_FORMAT_THREAD_LOCAL = new ThreadLocal<DateFormat>() {
+        @Nullable
+        @Override
+        protected DateFormat initialValue() {
+            Locale locale = Locale.getDefault();
+            return new SimpleDateFormat("EEEE", locale);
+        }
+    };
 
     /**
      * This method returns the number of days since the epoch (January 01, 1970, 12:00 Midnight UTC)
@@ -130,7 +143,7 @@ public final class SunshineDateUtils {
                  * documentation on DateFormat#getBestDateTimePattern(Locale, String)
                  * https://developer.android.com/reference/android/text/format/DateFormat.html#getBestDateTimePattern
                  */
-                String localizedDayName = new SimpleDateFormat("EEEE").format(localDate);
+                String localizedDayName = DATE_FORMAT_THREAD_LOCAL.get().format(localDate);
                 return readableDate.replace(localizedDayName, dayName);
             } else {
                 return readableDate;
@@ -190,8 +203,7 @@ public final class SunshineDateUtils {
              * Otherwise, if the day is not today, the format is just the day of the week
              * (e.g "Wednesday")
              */
-            SimpleDateFormat dayFormat = new SimpleDateFormat("EEEE");
-            return dayFormat.format(dateInMillis);
+            return DATE_FORMAT_THREAD_LOCAL.get().format(dateInMillis);
         }
     }
 }
